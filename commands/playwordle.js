@@ -11,8 +11,22 @@ module.exports = {
                 .setRequired(false))
         .addStringOption(option =>
             option.setName('word')
-                .setDescription('The word to play the wordle with')
+                .setDescription('The word to play the wordle with (overrides date options)')
+                .setRequired(false))
+        .addIntegerOption(option =>
+            option.setName('year')
+                .setDescription('The year to solve the wordle for')
+                .setRequired(false))
+        .addIntegerOption(option =>
+            option.setName('month')
+                .setDescription('The month to solve the wordle for')
+                .setRequired(false))
+        .addIntegerOption(option =>
+            option.setName('day')
+                .setDescription('The day to solve the wordle for')
                 .setRequired(false)),
+        
+
 
 	async execute(interaction) {
         if (interaction.options.getString('mode') == null) {
@@ -20,11 +34,41 @@ module.exports = {
         } else {
             var mode = interaction.options.getString('mode');
         }
+
         if (interaction.options.getString('word') == null) {
             var word = undefined;
         } else {
             var word = interaction.options.getString('word');
         }
+
+        if (word == undefined) {
+            interaction.options.getInteger("year") == null ? year = undefined : year = interaction.options.getInteger("year");
+            interaction.options.getInteger("month") == null ? month = undefined : month = interaction.options.getInteger("month");
+            interaction.options.getInteger("day") == null ? day = undefined : day = interaction.options.getInteger("day");
+            var date = new Date();
+            if (year != undefined) {
+                date.setFullYear(year);
+            }
+            if (month != undefined) {
+                date.setMonth(month - 1);
+            }
+            if (day != undefined) {
+                date.setDate(day);
+            }
+            try {
+                var wordleData = await wordle.fetchWordleData(date);
+                word = wordleData.solution;
+            } catch (error) {
+                if (error.response.status == 404) {
+                    await interaction.reply(`No wordle found for ${date.toDateString()}`);
+                    return;
+                }
+                await interaction.reply("Error: " + error.message);
+                return;
+            }
+
+        }
+
         try {
             var x = await wordle.playWordle(mode, word);
         }
