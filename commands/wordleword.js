@@ -9,13 +9,13 @@ module.exports = {
 	async execute(interaction) {
         //fetch wordle word
         try {
-            var wordleWord = await wordle.fetchWordleWord();
+            var wordleData = await wordle.fetchWordleData();
         }
         catch (error) {
             await interaction.reply("Error: " + error.message);
             return;
         }
         //reply with wordle word in spolier tag
-        await interaction.reply("Today's Wordle word is: ||" + wordleWord + "||");
+        await interaction.reply(`The word for Wordle ${wordleData.days_since_launch} is: ||${wordleData.solution.toUpperCase()}||`);
 	},
 };
