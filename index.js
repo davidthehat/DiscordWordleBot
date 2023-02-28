@@ -38,4 +38,10 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
+client.on('message', message => {
+	if (message.content.toLowerCase().includes('league')) {
+		message.channel.send('Lol, League is such a trash tier game. What kind of loser ever plays that stupid game? Now perish');
+	}
+});
+
 client.login(token);
