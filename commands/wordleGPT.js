@@ -1,11 +1,13 @@
 const { SlashCommandBuilder } = require('discord.js');
 
+const path = require('path');
+const fs = require('fs');
 //openai setup
 const { Configuration, OpenAIApi } = require("openai");
-require('dotenv').config({ path: `../openai/.env` });
-OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-PROMPT_HEADER = process.env.PROMPT_HEADER;
-// const { OPENAI_API_KEY, PROMPT_HEADER } = require('../openai/config.json')
+const { OPENAI_API_KEY, PROMPT_HEADER } = require('dotenv').parse( fs.readFileSync(path.resolve(`${__dirname}/../openai/.env`), {encoding: 'utf8'}));
+
+
+console.log(path.resolve(`${__dirname}/../openai/.env`))
 
 const configuration = new Configuration({
     apiKey: OPENAI_API_KEY,
@@ -26,12 +28,16 @@ module.exports = {
 
 	async execute(interaction) {
         try {
+            console.log(PROMPT_HEADER);
+            console.log(OPENAI_API_KEY);
+            console.log( process.env)
             await interaction.deferReply();
             const completion = await openai.createCompletion({
               model: "text-davinci-003",
               prompt: PROMPT_HEADER + "\n\n" + interaction.options.getString('question'),
               max_tokens: 100
             });
+            console.log(PROMPT_HEADER);
             console.log(completion.data.choices)
             await interaction.editReply(completion.data.choices[0].text);
         } catch (error) {
