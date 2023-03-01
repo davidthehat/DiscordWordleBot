@@ -1,37 +1,59 @@
-const { REST, Routes } = require('discord.js');
-const { clientId, guildId, token } = require('./config.json');
 const fs = require('node:fs');
-const path = require('node:path');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+// Read environment variables
+const config = require('./env-var');
+const clientId = config.getConfig().clientId;
+const guildId = config.getConfig().guildId;
+const token = config.getConfig().token;
+// Get arguments from command input to determine environment state
+const args = process.argv.slice(2);
+const env_state = args[0];
 
 const commands = [];
-// Grab all the command files from the commands directory you created earlier
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	commands.push(command.data.toJSON());
 }
 
-// Construct and prepare an instance of the REST module
-const rest = new REST({ version: '10' }).setToken(token);
+// Read development commands from commands-dev/ folder
+if (env_state === 'dev') {
+	const commandFilesDev = fs.readdirSync('./commands-dev').filter(file => file.endsWith('.js'));
 
-// and deploy your commands!
+	for (const file of commandFilesDev) {
+		const command = require(`./commands-dev/${file}`);
+		commands.push(command.data.toJSON());
+	}
+}
+const numCommands = commands.length;
+const rest = new REST({ version: '9' }).setToken(token);
+
 (async () => {
 	try {
-		console.log(`Started refreshing ${commands.length} application (/) commands.`);
+		console.log(`Started refreshing ${env_state} application (/) commands with ${numCommands} command(s).`);
 
-		// The put method is used to fully refresh all commands in the guild with the current set
-		const data = await rest.put(
-			// Routes.applicationGuildCommands(clientId, guildId),
-            Routes.applicationCommands(clientId),
-			{ body: commands },
-		);
+		if (env_state === 'dev') {
+			// Deploy commands to the development guild immediately
+			await rest.put(
+				Routes.applicationGuildCommands(clientId, guildId),
+				{ body: commands },
 
-		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+			);
+			console.log(`Successfully reloaded ${numCommands} application (/) command(s) to guild ${guildId}.`);
+
+		} else if (env_state === 'prod') {
+			// Deploy commands globally to production
+			await rest.put(
+				Routes.applicationCommands(clientId),
+				{ body: commands },
+			);
+			console.log(`Successfully reloaded ${numCommands} application (/) command(s) globally.`);
+		} else {
+			throw new Error(`Invalid environment state: ${env_state}. Must be 'dev' or 'prod'.`);
+		}
 	} catch (error) {
-		// And of course, make sure you catch and log any errors!
 		console.error(error);
 	}
 })();
