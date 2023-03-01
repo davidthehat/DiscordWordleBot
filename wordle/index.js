@@ -62,8 +62,13 @@ function generateWordleResultString(resultsArray, number, mode) {
 async function playWordle(mode, word) {
     var solver = await fetchSolver();
     var wordleData = await fetchWordleData();
+    var number = wordleData.days_since_launch;
     if (word === undefined) {
+        // use today's wordle word
         word = wordleData.solution;
+    } else {
+        // insert the word instead of the wordle number
+        number = `[${word.toUpperCase()}]`;
     }
     const alpha5 = new RegExp(`^[a-z]{5}$`);
     if (!alpha5.test(word) || word.length != 5) {
@@ -73,7 +78,7 @@ async function playWordle(mode, word) {
     solver = `simWord = "${word}";simMode = true;` + solver;
     console.log(solver);
     resultsArray = await eval(solver);
-    return generateWordleResultString(resultsArray, wordleData.days_since_launch, mode);
+    return generateWordleResultString(resultsArray, number, mode);
 }
 
 module.exports = {
