@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 // Read environment variables
-const config = require('./env-var');
+const config = require('./env-var.js');
 const clientId = config.getConfig().clientId;
 const guildId = config.getConfig().guildId;
 const token = config.getConfig().token;
@@ -13,20 +13,26 @@ const env_state = args[0];
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
+//debug
+console.log(`env_state: ${env_state}`)
+console.log(`clientId: ${clientId}`)
+console.log(`guildId: ${guildId}`)
+console.log(`token: ${token}`)
+
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	commands.push(command.data.toJSON());
 }
 
-// Read development commands from commands-dev/ folder
-if (env_state === 'dev') {
-	const commandFilesDev = fs.readdirSync('./commands-dev').filter(file => file.endsWith('.js'));
+// // Read development commands from commands/ folder
+// if (env_state === 'dev') {
+// 	const commandFilesDev = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-	for (const file of commandFilesDev) {
-		const command = require(`./commands-dev/${file}`);
-		commands.push(command.data.toJSON());
-	}
-}
+// 	for (const file of commandFilesDev) {
+// 		const command = require(`./commands/${file}`);
+// 		commands.push(command.data.toJSON());
+// 	}
+// }
 const numCommands = commands.length;
 const rest = new REST({ version: '9' }).setToken(token);
 
