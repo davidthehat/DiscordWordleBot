@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "npm run commands && npm run start",
+    "start": "node index.js prod",
+    "dev": "npm run commands && node index.js dev",
     "commands": "node deploy-commands.js dev"
   },
   "repository": {
