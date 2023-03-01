@@ -8,7 +8,7 @@ const getConfig = () => {
     if (!allowed_env_states.includes(env_state)) {
         throw new Error(`Invalid environment state: ${env_state}. Must be one of: ${allowed_env_states}.`);
     }
-require('dotenv').config({ path: `./.${env_state}.env` });
+    require('dotenv').config({ path: `./.${env_state}.env` });
     
     const env_client_id = process.env.CLIENT_ID;
     const env_guild_id = process.env.GUILD_ID;
