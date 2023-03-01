@@ -7,6 +7,7 @@ A Discord bot that implements various Wordle related features.
 * `/playwordle`: Simulate playing today's Wordle, or a given word
 * `/wordleword`: Tell the user today's Wordle answer, or the answer for a given date
 * `/question`: Answers a user's question about the bot
+* `/wordlegpt`: Replies to the user's input as an AI
 
 <!--
 TODO add invite link

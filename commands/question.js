@@ -12,7 +12,6 @@ module.exports = {
 
 
 	async execute(interaction) {
-        //fetch wordle word
         await interaction.reply("WordleBot is open source! You can find the source code here: https://github.com/davidthehat/DiscordWordleBot. All possible questions about the bot can be answered by reading the source code.");
     }
     
