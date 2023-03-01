@@ -15,9 +15,6 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 
 //debug
 console.log(`env_state: ${env_state}`)
-console.log(`clientId: ${clientId}`)
-console.log(`guildId: ${guildId}`)
-console.log(`token: ${token}`)
 
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
