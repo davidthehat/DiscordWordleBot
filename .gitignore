@@ -105,3 +105,4 @@ dist
 
 # Additional
 config.json
+.env
