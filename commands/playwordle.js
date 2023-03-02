@@ -24,9 +24,13 @@ module.exports = {
         .addIntegerOption(option =>
             option.setName('day')
                 .setDescription('The day to solve the wordle for')
+                .setRequired(false))
+        .addBooleanOption(option =>
+            option.setName('revealed')
+                .setDescription('Whether the wordle is revealed or not. Defaults to false.')
                 .setRequired(false)),
-        
 
+        
 
 	async execute(interaction) {
         if (interaction.options.getString('mode') == null) {
@@ -69,13 +73,21 @@ module.exports = {
 
         }
 
+        if (interaction.options.getBoolean('revealed') == null) {
+            var revealed = false;
+        } else {
+            var revealed = interaction.options.getBoolean('revealed');
+        }
+
+        await interaction.deferReply();
         try {
-            var x = await wordle.playWordle(mode, word);
+            var x = await wordle.playWordle(mode, wordleData, word, revealed);
         }
         catch (error) {
-            await interaction.reply("Error: " + error.message);
+            await interaction.editReply("Error: " + error.message);
             return;
         }
-        await interaction.reply(x);
+        await interaction.editReply(x);
+        console.log(x);
 	},
 };
