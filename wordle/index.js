@@ -76,7 +76,6 @@ async function playWordle(mode, word) {
     }
 
     solver = `simWord = "${word}";simMode = true;` + solver;
-    console.log(solver);
     resultsArray = await eval(solver);
     return generateWordleResultString(resultsArray, number, mode);
 }
