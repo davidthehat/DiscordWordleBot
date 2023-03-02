@@ -1,5 +1,6 @@
 //include axios
-var axios = require('axios');
+const axios = require('axios');
+const c = require('ansi-colors');
 
 function dateToWordledate(date) {
     if (date === undefined) {
@@ -36,48 +37,71 @@ function wonGame(resultsArray) {
     return finalRow.every((value) => value === "correct");
 }
 
-function generateWordleResultString(resultsArray, number, mode) {
+function generateWordleResultString(resultsArray, number, mode, revealed) {
     //loop through results array
-    var resultString = `Wordle ${number} ${wonGame(resultsArray) ? resultsArray.length : "X"}/6${mode}\n\n`;
-
+    var resultString = "";
+    if (revealed) {
+        resultString += "**WARNING: Spoiler contains the solution**\n";
+    }
+    resultString += `Wordle ${number} ${wonGame(resultsArray) ? resultsArray.length : "X"}/6${mode}\n\n`;
+    if (revealed) {
+        resultString += "||```ansi\n";
+    }
     for (var i = 0; i < resultsArray.length; i++) {
-        for (var j = 0; j < resultsArray[i].length; j++) {
-            curr = resultsArray[i][j];
-            if (curr === "absent") {
-                //black square
-                resultString += "⬛";
-            } else if (curr === "present") {
-                //yellow square
-                resultString += "🟨";
-            } else if (curr === "correct") {
-                //green square
-                resultString += "🟩";
+        for (var j = 0; j < resultsArray[i][0].length; j++) {
+            var currColor = resultsArray[i][0][j];
+            var currLetter = resultsArray[i][1][j];
+            if (revealed) {
+                if (currColor === "absent") {
+                    //default letter
+                    resultString += (currLetter.toUpperCase());
+                } else if (currColor === "present") {
+                    //yellow letter
+                    resultString += c.yellow(currLetter.toUpperCase());
+                } else if (currColor === "correct") {
+                    //green letter
+                    resultString += c.green(currLetter.toUpperCase());
+                }
+            } else {
+                if (currColor === "absent") {
+                    //black square
+                    resultString += "⬛";
+                } else if (currColor === "present") {
+                    //yellow square
+                    resultString += "🟨";
+                } else if (currColor === "correct") {
+                    //green square
+                    resultString += "🟩";
+                }
             }
         }
         resultString += "\n";
     }
+    if (revealed) {
+        resultString += "\n```||";
+    }
     return resultString;
 }
 
-async function playWordle(mode, word) {
+async function playWordle(mode, wordleData, word, revealed) {
     var solver = await fetchSolver();
-    var wordleData = await fetchWordleData();
-    var number = wordleData.days_since_launch;
-    if (word === undefined) {
-        // use today's wordle word
+    
+    if (wordleData !== undefined) {
         word = wordleData.solution;
+        number = wordleData.days_since_launch;
     } else {
-        // insert the word instead of the wordle number
-        number = `[${word.toUpperCase()}]`;
+        number = `[${word.toUpperCase()}]`
     }
     const alpha5 = new RegExp(`^[a-z]{5}$`);
     if (!alpha5.test(word) || word.length != 5) {
         throw new Error("Word must be 5 letters long and only contain letters a-z");
     }
 
-    solver = `simWord = "${word}";simMode = true;` + solver;
+    solver = `verbose = false; simWord = "${word}";simMode = true;` + solver;
     resultsArray = await eval(solver);
-    return generateWordleResultString(resultsArray, number, mode);
+    console.log("resultsArray: ")
+    console.log(resultsArray);
+    return generateWordleResultString(resultsArray, number, mode, revealed);
 }
 
 module.exports = {
