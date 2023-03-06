@@ -33,7 +33,7 @@ function wonGame(resultsArray) {
     if (resultsArray.length != 6) {
         return true;
     }
-    var finalRow = resultsArray[5];
+    var finalRow = resultsArray[5][0];
     return finalRow.every((value) => value === "correct");
 }
 
