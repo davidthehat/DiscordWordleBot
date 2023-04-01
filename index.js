@@ -34,6 +34,10 @@ client.on(Events.MessageCreate, async message => {
 	// if message is from bot, ignore
 	if (message.author.id == clientId) return;
 
+	// if message contains League (ignore case), reply with message
+	if (message.content.toLowerCase().includes("league")) {
+		await message.reply("Lol, League is such a trash tier game. What kind of loser ever plays that stupid game? Now perish");
+	}
 	
 	//get channel id
 	const channel = message.channelId;
