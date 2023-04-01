@@ -46,6 +46,9 @@ module.exports = {
                 autoArchiveDuration: 60,
                 reason: 'Thread created for WordleBot chat',
             });
+
+            thread.send("Question by <@" + interaction.user.id + ">: " + question);
+            
             const completion = await chatCompletion.chatCompletion(
                 {"role": "user", "content": question});
             console.log(PROMPT_HEADER);
@@ -54,7 +57,7 @@ module.exports = {
             await interaction.editReply({content: "Check the thread!", ephemeral: true});
             // console.log("USERID")
             // console.log(interaction.user.id);
-            thread.send("Question by <@" + interaction.user.id + ">: " + question);
+            // thread.send("Question by <@" + interaction.user.id + ">: " + question);
             
             await thread.send(completion.data.choices[0].message.content);
         } catch (error) {

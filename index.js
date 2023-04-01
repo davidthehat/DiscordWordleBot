@@ -43,6 +43,8 @@ client.on(Events.MessageCreate, async message => {
 			if (channel.ownerId == clientId) {
 				//log all messages
 				console.log("botthread");
+				// if message contains [IGNORE], ignore
+				if (message.content.includes("[IGNORE]")) return;
 				channel.messages.fetch().then(async messages => {
 					list = [];
 					for (const [id, message] of messages) {
@@ -58,6 +60,9 @@ client.on(Events.MessageCreate, async message => {
 					console.log(list[0]);
 					//change first message to "user"
 					list[0].role = "user";
+
+					//remove messages with [IGNORE]
+					list = list.filter(message => !message.content.includes("[IGNORE]"));
 
 					const completion = await chatCompletion.chatCompletion(list);
 					console.log(completion.data.choices[0].message.content);
