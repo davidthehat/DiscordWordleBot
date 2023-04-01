@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 
 const path = require('path');
 const fs = require('fs');
+const chatCompletion = require("../chatCompletion");
 //openai setup
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -14,7 +15,8 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-
+//This command only BEGINS a conversation with the wordlebot
+//The wordlebot will continue the conversation when you reply to the wordlebot's message
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('wordlegpt')
@@ -27,20 +29,35 @@ module.exports = {
 
 	async execute(interaction) {
         try {
-            console.log(PROMPT_HEADER);
-            console.log(OPENAI_API_KEY);
-            console.log( process.env)
-            await interaction.deferReply();
-            const completion = await openai.createCompletion({
-              model: "text-davinci-003",
-              prompt: PROMPT_HEADER + "\n\n" + interaction.options.getString('question'),
-              max_tokens: 1000
+            console.log(interaction);
+            const question = interaction.options.getString('question');
+            let threadName;
+            let incompleteName = false;
+            if (question.length > 100) {
+                threadName = question.substring(0, 95) + "...";
+                incompleteName = true;
+            } else {
+                threadName = question;
+            }
+            await interaction.deferReply({ephemeral: true});
+            const channel = interaction.channel;
+            const thread = await channel.threads.create({
+                name: threadName,
+                autoArchiveDuration: 60,
+                reason: 'Thread created for WordleBot chat',
             });
+            const completion = await chatCompletion.chatCompletion(
+                {"role": "user", "content": question});
             console.log(PROMPT_HEADER);
-            console.log(completion.data.choices)
-            await interaction.editReply(completion.data.choices[0].text);
+            console.log(completion.data.choices);
+            // await interaction.editReply(completion.data.choices[0].message.content);
+            await interaction.editReply({content: "Check the thread!", ephemeral: true});
+            
+            thread.send("Question: " + question);
+            
+            await thread.send(completion.data.choices[0].message.content);
         } catch (error) {
-            await interaction.editReply(`There was an error while executing this command: ${error}`);
+            await interaction.editReply({ content: `There was an error while executing this command: ${error}`, ephemeral: true});
         }
     }
     
