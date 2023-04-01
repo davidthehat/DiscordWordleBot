@@ -52,8 +52,9 @@ module.exports = {
             console.log(completion.data.choices);
             // await interaction.editReply(completion.data.choices[0].message.content);
             await interaction.editReply({content: "Check the thread!", ephemeral: true});
-            
-            thread.send("Question: " + question);
+            // console.log("USERID")
+            // console.log(interaction.user.id);
+            thread.send("Question by <@" + interaction.user.id + ">: " + question);
             
             await thread.send(completion.data.choices[0].message.content);
         } catch (error) {

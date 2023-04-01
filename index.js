@@ -53,8 +53,9 @@ client.on(Events.MessageCreate, async message => {
 						}
 					}
 					list.reverse();
-					//remove "question: " from first message
-					list[0].content = list[0].content.replace("Question: ", "");
+					//remove "question: <Username>" from first message
+					list[0].content = list[0].content.substring(list[0].content.indexOf(":") + 2);
+					console.log(list[0]);
 					//change first message to "user"
 					list[0].role = "user";
 
