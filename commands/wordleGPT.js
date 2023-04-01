@@ -34,7 +34,7 @@ module.exports = {
             const completion = await openai.createCompletion({
               model: "text-davinci-003",
               prompt: PROMPT_HEADER + "\n\n" + interaction.options.getString('question'),
-              max_tokens: 100
+              max_tokens: 1000
             });
             console.log(PROMPT_HEADER);
             console.log(completion.data.choices)
