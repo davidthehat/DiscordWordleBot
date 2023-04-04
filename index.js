@@ -6,6 +6,8 @@ const token = config.getConfig().token;
 const clientId = config.getConfig().clientId;
 
 const chatCompletion = require('./chatCompletion');
+const movieQuote = require('popular-movie-quotes');
+const splitText = require('split-text');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent", "GuildMessages"] });
 
@@ -29,8 +31,6 @@ client.once(Events.ClientReady, () => {
 
 // on client message
 client.on(Events.MessageCreate, async message => {
-	console.log("message received");
-	console.log(message);
 	// if message is from bot, ignore
 	if (message.author.id == clientId) return;
 
@@ -49,6 +49,13 @@ client.on(Events.MessageCreate, async message => {
 				console.log("botthread");
 				// if message contains [IGNORE], ignore
 				if (message.content.includes("[IGNORE]")) return;
+				if (message.content == "") return;
+				// if message is from throttled user, reply with movie quote
+				throttledUsers = []; //disables throttling feature
+				if (throttledUsers.includes(message.author.id) && !message.content.toLowerCase().includes("please")) {
+					channel.send(movieQuote.getRandomQuote());
+					return;
+				}
 				channel.messages.fetch().then(async messages => {
 					list = [];
 					for (const [id, message] of messages) {
@@ -67,10 +74,27 @@ client.on(Events.MessageCreate, async message => {
 
 					//remove messages with [IGNORE]
 					list = list.filter(message => !message.content.includes("[IGNORE]"));
-
-					const completion = await chatCompletion.chatCompletion(list);
-					console.log(completion.data.choices[0].message.content);
-					channel.send(completion.data.choices[0].message.content);
+					
+					let completion;
+					try {
+						completion = await chatCompletion.chatCompletion(list);
+					} catch (error) {
+						
+						console.log("Error: " + error);
+					}
+					
+					if (completion == undefined) {
+						await channel.send("[IGNORE] There was a problem with the request. Try creating a new thread.");
+						return;
+					}
+					output = completion.data.choices[0]?.message?.content;
+					
+					//split output into multiple messages if too long
+					const splitOutput = splitText(output, 1900);
+					for (const message of splitOutput) {
+						await channel.send(message);
+					}
+					
 				});
 			}
 		}
