@@ -3,6 +3,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const path = require('path');
 const fs = require('fs');
 const chatCompletion = require("../chatCompletion");
+const splitText = require('split-text');
 //openai setup
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -55,11 +56,11 @@ module.exports = {
             console.log(completion.data.choices);
             // await interaction.editReply(completion.data.choices[0].message.content);
             await interaction.editReply({content: "Check the thread!", ephemeral: true});
-            // console.log("USERID")
-            // console.log(interaction.user.id);
-            // thread.send("Question by <@" + interaction.user.id + ">: " + question);
-            
-            await thread.send(completion.data.choices[0].message.content);
+            const output = completion.data.choices[0].message.content;
+            const splitOutput = splitText(output, 1900);
+            for (const message of splitOutput) {
+                await thread.send(message);
+            }
         } catch (error) {
             await interaction.editReply({ content: `There was an error while executing this command: ${error}`, ephemeral: true});
         }
