@@ -12,8 +12,8 @@ const openai = new OpenAIApi(configuration);
 async function chatCompletion(messages) {
     //gpt turbo
 
-    model = "gpt-3.5-turbo-0301"; //todo change to gpt4
-    model = "gpt-4";
+    model = "gpt-3.5-turbo-0301";
+    // model = "gpt-4";
     messages = [{role: 'system', content: PROMPT_HEADER}].concat(messages);
     console.log(messages);
     const completion = await openai.createChatCompletion({
