@@ -27,6 +27,7 @@ async function fetchSolver() {
 }
 
 function wonGame(resultsArray) {
+    console.log(resultsArray);
     if (resultsArray === undefined) {
         return false;
     }
@@ -84,41 +85,39 @@ function generateWordleResultString(resultsArray, number, mode, revealed) {
 }
 
 function chairMode(answerWord) {
-  var gradeGuess = function(guess) {
-    var arr = Array(guess.length).fill("absent");
-    simWordCopy = answerWord.split("");
+    var gradeGuess = function(guess) {
+        var arr = Array(guess.length).fill("absent");
+        simWordCopy = answerWord.split("");
 
-    for (var i = 0; i < guess.length; i++) {
-        if (simWordCopy[i] == guess[i]) {
-            arr[i] = 'correct';
-            simWordCopy[i] = "_";
+        for (var i = 0; i < guess.length; i++) {
+            if (simWordCopy[i] == guess[i]) {
+                arr[i] = 'correct';
+                simWordCopy[i] = "_";
+            }
         }
-    }
 
-    for (var i = 0; i < guess.length; i++) {
-        if (simWordCopy.includes(guess[i]) && arr[i] != 'correct') {
-            arr[i] = 'present';
-            for (var j = 0; j < simWordCopy.length; j++) {
-                if (simWordCopy[j] == guess[i]) {
-                    simWordCopy[j] = "_";
-                    break;
+        for (var i = 0; i < guess.length; i++) {
+            if (simWordCopy.includes(guess[i]) && arr[i] != 'correct') {
+                arr[i] = 'present';
+                for (var j = 0; j < simWordCopy.length; j++) {
+                    if (simWordCopy[j] == guess[i]) {
+                        simWordCopy[j] = "_";
+                        break;
+                    }
                 }
             }
         }
-    }
-    return arr;
+        return arr;
   }
 
-  var chair = 'CHAIR'
-  var gradeArr = gradeGuess(chair)
-  var resultsArr = []
-  resultsArr.concat([[gradeArr, chair]])
-  resultsArr.concat([[gradeArr, chair]])
-  resultsArr.concat([[gradeArr, chair]])
-  resultsArr.concat([[gradeArr, chair]])
-  resultsArr.concat([[gradeArr, chair]])
-  resultsArr.concat([[gradeArr, chair]])
-  return resultsArr
+    var chair = 'chair';
+    var gradeArr = gradeGuess(chair);
+    if (gradeArr.every((value) => value === "correct")) {
+        return [[gradeArr, chair]];
+    }
+    // create array with 6 copies of gradeArr
+    var resultsArray = Array(6).fill([gradeArr, chair]);
+    return resultsArray;
 }
 
 async function playWordle(mode, wordleData, word, revealed) {
@@ -134,10 +133,10 @@ async function playWordle(mode, wordleData, word, revealed) {
     if (!alpha5.test(word) || word.length != 5) {
         throw new Error("Word must be 5 letters long and only contain letters a-z");
     }
-
-    if (mode == ':chair:'){
+    // console.log(mode);
+    if (mode == ':chair:' || mode == "🪑"){
       resultsArray = chairMode(word);
-      console.log("resultsArray: ")
+      console.log("resultsArray: ");
       console.log(resultsArray);
       return generateWordleResultString(resultsArray, number, mode, revealed);
     } 
