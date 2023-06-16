@@ -8,6 +8,8 @@ A Discord bot that implements various Wordle related features.
 * `/wordleword`: Tell the user today's Wordle answer, or the answer for a given date
 * `/question`: Answers a user's question about the bot
 * `/wordlegpt`: Replies to the user's input as an AI
+* `/serverstatus`: Gives basic info for the minecraft server at a given IP
+* `/music`: Plays music with some basic controlls. Significant WIP.
 
 <!--
 TODO add invite link
