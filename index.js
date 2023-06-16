@@ -11,6 +11,12 @@ const splitText = require('split-text');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent", "GuildMessages", "GuildVoiceStates"] });
 
+const { Player } = require("discord-player");
+
+global.player = new Player(client);
+
+player.extractors.loadDefault();
+
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -132,6 +138,10 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
+player.events.on('playerStart', (queue, track) => {
+    // we will later define queue.metadata object while creating the queue
+    queue.metadata.channel.send(`Started playing **${track.title}**!`);
+});
 
 
 client.login(token);
