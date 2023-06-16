@@ -9,7 +9,7 @@ const chatCompletion = require('./chatCompletion');
 const movieQuote = require('popular-movie-quotes');
 const splitText = require('split-text');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent", "GuildMessages"] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent", "GuildMessages", "GuildVoiceStates"] });
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
@@ -34,9 +34,18 @@ client.on(Events.MessageCreate, async message => {
 	// if message is from bot, ignore
 	if (message.author.id == clientId) return;
 
-	// if message contains League (ignore case), reply with message
-	if (message.content.toLowerCase().includes("league")) {
-		await message.reply("Lol, League is such a trash tier game. What kind of loser ever plays that stupid game? Now perish");
+	// if message contains League (ignore case) in humps server, reply with message
+	if (message.content.toLowerCase().includes("league") && message.guildId == "687382250563698821") {
+		
+		//if in #gifs-only, reply with https://tenor.com/view/andrew-capro-the-office-wordle-michael-michael-scott-gif-25175786
+		let channelId = message.channelId;
+		let channelName = client.channels.cache.get(channelId).name;
+		console.log(channelName);
+		if (channelId == "897883769850179584" || channelName == "gifs-only") {
+			return await message.reply("https://tenor.com/view/andrew-capro-the-office-wordle-michael-michael-scott-gif-25175786");
+		} else {
+			await message.reply("Lol, League is such a trash tier game. What kind of loser ever plays that stupid game? Now perish");
+		}
 	}
 	
 	//get channel id
@@ -84,7 +93,7 @@ client.on(Events.MessageCreate, async message => {
 					}
 					
 					if (completion == undefined) {
-						await channel.send("[IGNORE] There was a problem with the request. Try creating a new thread.");
+						await channel.send("[IGNORE] There was a problem with the request. Try again or try creating a new thread.");
 						return;
 					}
 					output = completion.data.choices[0]?.message?.content;
