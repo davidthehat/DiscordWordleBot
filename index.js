@@ -12,6 +12,7 @@ const splitText = require('split-text');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent", "GuildMessages", "GuildVoiceStates"] });
 
 const { Player } = require("discord-player");
+const music = require('./commands/music');
 
 global.player = new Player(client);
 
@@ -20,6 +21,10 @@ player.extractors.loadDefault();
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+client.musicButtons = new Collection();
+const musicPath = path.join(__dirname, 'music');
+const musicFiles = fs.readdirSync(musicPath).filter(file => file.endsWith('.js') && file != 'index.js');
 
 const args = process.argv.slice(2);
 const env_state = args[0];
@@ -30,6 +35,12 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
+for (const file of musicFiles) {
+	const filePath = path.join(musicPath, file);
+	const button = require(filePath);
+	client.musicButtons.set(button.data.data.custom_id, button);
+	console.log("registered button: " + button.data.data.custom_id);
+}
 client.once(Events.ClientReady, () => {
     console.log('Environment state: ' + env_state);
 	console.log('Ready!');
@@ -117,25 +128,46 @@ client.on(Events.MessageCreate, async message => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) {
-		console.log(interaction);
-		return
-	}
+	if (interaction.isChatInputCommand()) {
+		const command = client.commands.get(interaction.commandName);
 
-	const command = client.commands.get(interaction.commandName);
+		if (!command) return;
 
-	if (!command) return;
-
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-		} else {
-			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+		try {
+			await command.execute(interaction);
+		} catch (error) {
+			console.error(error);
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+			} else {
+				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+			}
 		}
+		return;
 	}
+
+	if (interaction.isButton()) {
+		console.log(interaction.customId)
+		const button = client.musicButtons.get(interaction.customId);
+		console.log(button);
+		if (!button) return;
+
+		try {
+			await button.execute(interaction);
+		} catch (error) {
+			console.error(error);
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp({ content: 'There was an error while executing this button!', ephemeral: true });
+			} else {
+				await interaction.reply({ content: 'There was an error while executing this button!', ephemeral: true });
+			}
+		}
+		return;
+	}
+		
+	// If interaction is not handled above, log and ignore.
+	console.log(interaction);
+	return;
 });
 
 player.events.on('playerStart', (queue, track) => {

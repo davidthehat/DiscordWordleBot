@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder } = require('discord.js');
 const {
     joinVoiceChannel,
     createAudioPlayer,
@@ -16,6 +16,8 @@ const ytdl = require('ytdl-core')
 // youtube search api
 const yts = require('youtube-search-api');
 
+//music
+const { BackButton, NextButton, PlayPauseButton } = require('../music');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -24,10 +26,35 @@ module.exports = {
         .addStringOption(option =>
             option.setName('name')
                 .setDescription('The name of the song to play')
-                .setRequired(true)),
+                .setRequired(false)),
 
 
     async execute(interaction) {
+        //check if name is provided
+        if (interaction.options.getString('name') == null) {
+            //send GUI embed
+            const embed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle('Options Panel')
+                .setDescription('WIP Music Player')
+                .setTimestamp();
+            
+            //create action row with link button
+            const actionRow = new ActionRowBuilder()
+                .addComponents(BackButton.data)
+                .addComponents(PlayPauseButton.data)
+                .addComponents(NextButton.data);
+            //send embed with action row
+                
+            
+
+            await interaction.reply({ 
+                embeds: [embed],
+                components: [actionRow]
+            });
+            return;
+        }
+
         const channel = interaction.member.voice.channel; // get the voice channel of the user who sent the interaction
         if (!channel) return interaction.reply('You are not connected to a voice channel!'); // make sure we have a voice channel
         const query = interaction.options.getString('name', true); // we need input/query to play
