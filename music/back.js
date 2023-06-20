@@ -9,7 +9,12 @@ module.exports = {
     async execute(interaction) {
         const guild = interaction.guild;
         const queue = player.nodes.get(guild);
-        queue.history.back();
+        const history = queue.history;
+        if (history.isEmpty()) {
+            // await interaction.reply("There is no previous song!");
+            return;
+        }
+        history.back();
         await interaction.deferUpdate();
     }
 };

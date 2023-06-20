@@ -19,6 +19,9 @@ const yts = require('youtube-search-api');
 //music
 const { BackButton, NextButton, PlayPauseButton } = require('../music');
 
+const args = process.argv.slice(2);
+const env_state = args[0];
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('music')
@@ -32,16 +35,45 @@ module.exports = {
     async execute(interaction) {
         //check if name is provided
         if (interaction.options.getString('name') == null) {
+            // if in dev mode and queue is empty, populate queue with test tracks
+            if (env_state === "dev" && player.nodes.get(interaction.guild)?.tracks.size == 0) {
+                console.log("DEV MODE: Populating queue with test tracks");
+                let testTracks = [ 'rY-FJvRqK0E', 'mQsI_HEcrbI', 'unaSEpEaIkU' ];
+                const channel = interaction.member.voice.channel;
+                const vidId = testTracks[0];
+                    
+                const { track } = await player.play(channel, vidId, {
+                    nodeOptions: {
+                        // nodeOptions are the options for guild node (aka your queue in simple word)
+                        metadata: interaction // we can access this metadata object using queue.metadata later on
+                    }
+                });
+                track.requestedBy = "DEBUG";
+            }
+
+
             //get queue for this guild
             const guild = interaction.guild;
             const queue = player.nodes.get(guild);
-            const tracks = queue.tracks.data;
+            const tracks = queue?.tracks?.data;
+
+            //if queue is empty, send error message
+            if (tracks == null || tracks.length == 0) {
+                await interaction.reply("Queue is empty!");
+                return;
+            }
+
+            //get current track
+            const currentTrack = queue.currentTrack;
 
             //get first 20 tracks
             const tracks20 = tracks.slice(0,20);
 
-            //send GUI embed
+            //create list of current track and first 20 tracks
+            const trackList = [currentTrack, ...tracks20];
 
+
+            //send GUI embed
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
                 .setTitle('Options Panel')
@@ -49,7 +81,8 @@ module.exports = {
                 .setTimestamp()
                 //for each track, add a field
                 .addFields(
-                    tracks20.map((track, index) => {
+                    //then add the rest of the tracks
+                    trackList.map((track, index) => {
                         console.log(track);
                         return {
                             name: `${index + 1}. ${track.title}`,
@@ -97,7 +130,7 @@ module.exports = {
             if (track.requestedBy.endsWith('#0')) {
                 track.requestedBy = track.requestedBy.slice(0, -2);
             }
-            
+
     
             return interaction.followUp(`**${track.title}** wordled!`);
         } catch (e) {
