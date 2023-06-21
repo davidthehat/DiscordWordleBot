@@ -36,20 +36,20 @@ module.exports = {
         //check if name is provided
         if (interaction.options.getString('name') == null) {
             // if in dev mode and queue is empty, populate queue with test tracks
-            if (env_state === "dev" && player.nodes.get(interaction.guild)?.tracks.size == 0) {
-                console.log("DEV MODE: Populating queue with test tracks");
-                let testTracks = [ 'rY-FJvRqK0E', 'mQsI_HEcrbI', 'unaSEpEaIkU' ];
-                const channel = interaction.member.voice.channel;
-                const vidId = testTracks[0];
+            // if (env_state === "dev" && player.nodes.get(interaction.guild)?.tracks.size == 0) {
+            //     console.log("DEV MODE: Populating queue with test tracks");
+            //     let testTracks = [ 'rY-FJvRqK0E', 'mQsI_HEcrbI', 'unaSEpEaIkU' ];
+            //     const channel = interaction.member.voice.channel;
+            //     const vidId = testTracks[0];
                     
-                const { track } = await player.play(channel, vidId, {
-                    nodeOptions: {
-                        // nodeOptions are the options for guild node (aka your queue in simple word)
-                        metadata: interaction // we can access this metadata object using queue.metadata later on
-                    }
-                });
-                track.requestedBy = "DEBUG";
-            }
+            //     const { track } = await player.play(channel, vidId, {
+            //         nodeOptions: {
+            //             // nodeOptions are the options for guild node (aka your queue in simple word)
+            //             metadata: interaction // we can access this metadata object using queue.metadata later on
+            //         }
+            //     });
+            //     track.requestedBy = "DEBUG";
+            // }
 
 
             //get queue for this guild
@@ -58,7 +58,7 @@ module.exports = {
             const tracks = queue?.tracks?.data;
 
             //if queue is empty, send error message
-            if (tracks == null || tracks.length == 0) {
+            if (queue == null || queue.currentTrack == null) {
                 await interaction.reply("Queue is empty!");
                 return;
             }
