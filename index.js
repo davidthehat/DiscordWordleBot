@@ -14,6 +14,8 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent"
 const { Player } = require("discord-player");
 const music = require('./commands/music');
 
+const readline = require('readline');
+
 global.player = new Player(client);
 
 player.extractors.loadDefault();
@@ -25,6 +27,11 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 client.musicButtons = new Collection();
 const musicPath = path.join(__dirname, 'music');
 const musicFiles = fs.readdirSync(musicPath).filter(file => file.endsWith('.js') && file != 'index.js');
+
+client.adminCommands = new Collection();
+const adminPath = path.join(__dirname, 'admin');
+const adminFiles = fs.readdirSync(adminPath).filter(file => file.endsWith('.js') && file != 'index.js');
+
 
 const args = process.argv.slice(2);
 const env_state = args[0];
@@ -41,6 +48,13 @@ for (const file of musicFiles) {
 	client.musicButtons.set(button.data.data.custom_id, button);
 	console.log("registered button: " + button.data.data.custom_id);
 }
+
+for (const file of adminFiles) {
+	const filePath = path.join(adminPath, file);
+	const command = require(filePath);
+	client.adminCommands.set(command.data.name, command);
+}
+
 client.once(Events.ClientReady, () => {
     console.log('Environment state: ' + env_state);
 	console.log('Ready!');
@@ -175,5 +189,32 @@ player.events.on('playerStart', (queue, track) => {
     queue.metadata.channel.send(`Started solving **${track.title}**!`);
 });
 
+
+const rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout,
+	terminal: false
+});
+
+rl.on('line', (line) => {
+	// process input
+	// split by spaces
+	const args = line.split(/ +/);
+	// console.log(args);
+	// get command (first word)
+	const commandName = args.shift().toLowerCase();
+	// console.log(commandName);
+	// get command object
+	const command = client.adminCommands.get(commandName);
+	// console.log(command);
+	// if command exists, execute
+	if (command) {
+		command.execute(line, args, client);
+	};
+});
+
+rl.once('close', () => {
+	// end of input
+});
 
 client.login(token);
