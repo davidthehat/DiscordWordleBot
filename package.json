@@ -29,6 +29,7 @@
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "ffmpeg-static": "^5.1.0",
+    "node-schedule": "^2.1.1",
     "openai": "^3.2.0",
     "opusscript": "^0.0.8",
     "popular-movie-quotes": "^1.2.4",
