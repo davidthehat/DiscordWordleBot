@@ -38,6 +38,7 @@
     "youtube-dl-exec": "^2.4.4",
     "youtube-ext": "^1.1.14",
     "youtube-search-api": "^1.1.2",
-    "ytdl": "^1.4.1"
+    "ytdl": "^1.4.1",
+    "ytdl-core": "^4.11.5"
   }
 }
