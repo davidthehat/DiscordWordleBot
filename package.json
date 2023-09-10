@@ -37,10 +37,5 @@
     "youtube-dl-exec": "^2.4.4",
     "youtube-search-api": "^1.1.2",
     "ytdl": "^1.4.1"
-  },
-  "overrides": {
-    "discord-music-player": {
-      "@discordjs/voice": "^0.16.0"
-    }
-  },
+  }
 }
