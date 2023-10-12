@@ -42,7 +42,7 @@ function generateWordleResultString(resultsArray, number, mode, revealed) {
     //loop through results array
     var resultString = "";
     if (revealed) {
-        resultString += "**WARNING: Spoiler contains the solution**\n";
+        resultString += "**WARNING: Spoiler may contain the solution**\n";
     }
     resultString += `Wordle ${number} ${wonGame(resultsArray) ? resultsArray.length : "X"}/6${mode}\n\n`;
     if (revealed) {
@@ -108,8 +108,7 @@ function chairMode(answerWord) {
             }
         }
         return arr;
-  }
-
+    }
     var chair = 'chair';
     var gradeArr = gradeGuess(chair);
     if (gradeArr.every((value) => value === "correct")) {
@@ -117,6 +116,7 @@ function chairMode(answerWord) {
     }
     // create array with 6 copies of gradeArr
     var resultsArray = Array(6).fill([gradeArr, chair]);
+    console.log(resultsArray);
     return resultsArray;
 }
 

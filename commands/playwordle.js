@@ -33,6 +33,7 @@ module.exports = {
         
 
 	async execute(interaction) {
+        await interaction.deferReply();
         if (interaction.options.getString('mode') == null) {
             var mode = " :robot:";
         } else {
@@ -64,10 +65,10 @@ module.exports = {
                 word = wordleData.solution;
             } catch (error) {
                 if (error.response.status == 404) {
-                    await interaction.reply(`No wordle found for ${date.toDateString()}`);
+                    await interaction.editReply(`No wordle found for ${date.toDateString()}`);
                     return;
                 }
-                await interaction.reply("Error: " + error.message);
+                await interaction.editReply("Error: " + error.message);
                 return;
             }
 
@@ -79,7 +80,6 @@ module.exports = {
             var revealed = interaction.options.getBoolean('revealed');
         }
 
-        await interaction.deferReply();
         try {
             var x = await wordle.playWordle(mode, wordleData, word, revealed);
         }
@@ -88,6 +88,5 @@ module.exports = {
             return;
         }
         await interaction.editReply(x);
-        console.log(x);
 	},
 };
