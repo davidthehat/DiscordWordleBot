@@ -68,7 +68,8 @@ module.exports = {
                     await interaction.editReply(`No wordle found for ${date.toDateString()}`);
                     return;
                 }
-                await interaction.editReply("Error: " + error.message);
+                await interaction.editReply("Error");
+                console.log(error);
                 return;
             }
 
@@ -84,7 +85,9 @@ module.exports = {
             var x = await wordle.playWordle(mode, wordleData, word, revealed);
         }
         catch (error) {
-            await interaction.editReply("Error: " + error.message);
+            await interaction.editReply("Error");
+            console.log(error);
+            console.log(error.message);
             return;
         }
         await interaction.editReply(x);

@@ -2,29 +2,38 @@
 //not a discord slash command, entered through the console
 
 function usage() {
-    console.log("Usage: (send <channel id> <message>)");
+    console.log("Usage: (channel <channel id> [property])");
 }
 
 
 module.exports = {
     data: 
     {
-        name: 'send',
+        name: 'channelprop',
     },
     async execute(line, args, client) {
-        //check if args has at least 2 elements
-        if (args.length < 2) {
+        //check if args has at least 1 elements
+        if (args.length < 1) {
             usage();
             return;
         }
-        //channel id is the first argument. send the rest of the arguments as a message
+        //channel id is the first argument.
+        //property is the second argument
         const channel = args[0];
-        const message = args.slice(1).join(" ");
+        if (args.length >= 2) {
+            const property = args[1];
+        }
+        const property = args[1];
         try {
             //get the channel obj from the id
             const channelObj = await client.channels.fetch(channel);
-            //send the message
-            await channelObj.send(message);
+            //send the name in console
+            if (property != undefined) {
+                console.log(channelObj[property]);
+            } else {
+                console.log(channelObj);
+            
+            }
         }
         catch (error) {
             if (error.code == 50001) {

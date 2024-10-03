@@ -12,13 +12,14 @@ const splitText = require('split-text');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent", "GuildMessages", "GuildVoiceStates"] });
 
 const { Player } = require("discord-player");
-const music = require('./commands/music');
+player = new Player(client);
 
 const readline = require('readline');
 
-global.player = new Player(client);
+const music = require('./commands/music');
 
-player.extractors.loadDefault();
+player.extractors.loadDefault((ext) => ext !== 'YouTubeExtractor');
+//player.extractors.loadDefault();
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
@@ -108,7 +109,7 @@ client.on(Events.MessageCreate, async message => {
 					list.reverse();
 					//remove "question: <Username>" from first message
 					list[0].content = list[0].content.substring(list[0].content.indexOf(":") + 2);
-					console.log(list[0]);
+					// console.log(list[0]);
 					//change first message to "user"
 					list[0].role = "user";
 
@@ -127,7 +128,8 @@ client.on(Events.MessageCreate, async message => {
 						await channel.send("[IGNORE] There was a problem with the request. Try again or try creating a new thread.");
 						return;
 					}
-					output = completion.data.choices[0]?.message?.content;
+					// console.log(completion)
+					output = completion.choices[0]?.message?.content;
 					
 					//split output into multiple messages if too long
 					const splitOutput = splitText(output, 1900);
@@ -186,9 +188,24 @@ client.on(Events.InteractionCreate, async interaction => {
 
 player.events.on('playerStart', (queue, track) => {
     // we will later define queue.metadata object while creating the queue
-    queue.metadata.channel.send(`Started solving **${track.title}**!`);
+	
+    queue.metadata.channel.send(`Started solving **[${track.title}](<${track.url}>)**!`);
+	console.log(track);
 });
 
+
+player.events.on('playerError', (queue, error, track) => {
+	//queue.metadata.channel.send(`Error occurred while playing **[${track.title}](<${track.url}>)**!`);
+	console.log(`Error: ${error}`);
+});
+
+// player.events.on("debug", (message) => {
+// 	console.log(message);
+// });
+
+// player.events.on('error', (error) => {
+// 	console.error(error);
+// });
 
 const rl = readline.createInterface({
 	input: process.stdin,

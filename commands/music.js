@@ -9,15 +9,17 @@ const {
     VoiceConnectionStatus,
     demuxProbe
 } = require('@discordjs/voice');
-
+const { useMainPlayer } = require('discord-player');
+const player = useMainPlayer();
 //yt-dl
-const ytdl = require('ytdl-core')
+// const ytdl = require('ytdl-core')
 
 // youtube search api
-const yts = require('youtube-search-api');
+// const yts = require('youtube-search-api');
 
 //music
 const { BackButton, NextButton, PlayPauseButton } = require('../music');
+const { QueryType } = require('discord-player/dist');
 
 const args = process.argv.slice(2);
 const env_state = args[0];
@@ -77,20 +79,22 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
                 .setTitle('Options Panel')
-                .setDescription('WIP Music Player')
+                .setDescription('Music Player')
                 .setTimestamp()
                 //for each track, add a field
                 .addFields(
                     //then add the rest of the tracks
                     trackList.map((track, index) => {
-                        console.log(track);
+                        // console.log(track);
                         return {
                             name: `${index + 1}. ${track.title}`,
                             value: `Duration: ${track.duration}\nRequested by: ${track.requestedBy}`,
                             inline: false
                         }
                     })
-                );
+                )
+                .setImage(currentTrack.thumbnail)
+                .setThumbnail(currentTrack.thumbnail);
                             
             //create action row with link button
             const actionRow = new ActionRowBuilder()
@@ -115,17 +119,17 @@ module.exports = {
     
         // let's defer the interaction as things can take time to process
         await interaction.deferReply();
-        const data = await yts.GetListByKeyword(query,false,1,[{type:'video'}]);
-        let vidId = data['items'][0]['id'];
-                
+        // const data = await yts.GetListByKeyword(query,false,1,[{type:'video'}]);
+        // let vidId = data['items'][0]['id'];
+        vidId = query;
         try {
             const { track } = await player.play(channel, vidId, {
                 nodeOptions: {
                     // nodeOptions are the options for guild node (aka your queue in simple word)
                     metadata: interaction, // we can access this metadata object using queue.metadata later on
                     ytdlOptions: {
-                        filter: 'audioonly',
-                        quality: 'highestaudio',
+                        // filter: 'audioonly',
+                        // quality: 'highestaudio',
                         highWaterMark: 1 << 25,
                         dlChunkSize: 0
                     }
@@ -137,11 +141,12 @@ module.exports = {
                 track.requestedBy = track.requestedBy.slice(0, -2);
             }
 
-    
-            return interaction.followUp(`**${track.title}** wordled!`);
+            return interaction.followUp(`**[${track.title}](<${track.url}>)** wordled!`);
         } catch (e) {
             // let's return error if something failed
-            return interaction.followUp(`Something went wrong: ${e}`);
+            console.error(e);
+            return interaction.followUp(`Something went wrong.`);
+            
         }
     }
     

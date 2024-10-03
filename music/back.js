@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle} = require("discord.js");
-
+const { useMainPlayer } = require('discord-player');
+const player = useMainPlayer();
 module.exports = {
 	data: button = new ButtonBuilder()
         .setStyle(ButtonStyle.Primary)

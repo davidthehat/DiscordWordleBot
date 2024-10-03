@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle} = require("discord.js");
-
+const { useMainPlayer } = require('discord-player');
+const player = useMainPlayer();
 module.exports = {
 	data: button = new ButtonBuilder()
         .setStyle(ButtonStyle.Success)
@@ -10,6 +11,7 @@ module.exports = {
         const guild = interaction.guild;
         const queue = player.nodes.get(guild);
 		queue.node.setPaused(!queue.node.isPaused());
+        console.log(queue.node.isPaused() ? "Paused" : "Resumed");
         await interaction.deferUpdate();
     }
 };

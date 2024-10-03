@@ -43,7 +43,8 @@ module.exports = {
                 await interaction.reply(`No wordle found for ${date.toDateString()}`);
                 return;
             }
-            await interaction.reply("Error: " + error.message);
+            await interaction.editReply("Error");
+            console.log(error);
             return;
         }
         //reply with wordle word in spolier tag
