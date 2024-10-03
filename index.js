@@ -11,6 +11,7 @@ const splitText = require('split-text');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, "MessageContent", "GuildMessages", "GuildVoiceStates"] });
 
+const { YoutubeiExtractor } = require("discord-player-youtubei")
 const { Player } = require("discord-player");
 player = new Player(client);
 
@@ -18,9 +19,7 @@ const readline = require('readline');
 
 const music = require('./commands/music');
 
-player.extractors.loadDefault((ext) => ext !== 'YouTubeExtractor');
-//player.extractors.loadDefault();
-
+player.extractors.register(YoutubeiExtractor)
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));

@@ -26,14 +26,13 @@
     "ansi-colors": "^4.1.3",
     "axios": "^1.3.4",
     "discord-player": "^6.5.0",
+    "discord-player-youtubei": "^1.3.2",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "mediaplex": "^0.0.7",
     "openai": "^4.39.1",
     "popular-movie-quotes": "^1.2.4",
     "split-text": "^1.0.0",
-    "tweetnacl": "^1.0.3",
-    "youtube-dl-exec": "^2.4.4",
-    "youtube-ext": "^1.1.25"
+    "tweetnacl": "^1.0.3"
   }
 }
